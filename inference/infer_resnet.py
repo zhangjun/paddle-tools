@@ -15,6 +15,7 @@ def init_predictor(args):
         config = Config(args.model_file, args.params_file)
 
     config.enable_memory_optim()
+    config.enable_profile()
     if args.use_gpu:
         config.enable_use_gpu(1000, 0)
     else:
