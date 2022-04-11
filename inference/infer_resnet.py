@@ -15,9 +15,14 @@ def init_predictor(args):
 
     config.enable_memory_optim()
     # config.enable_profile()
+    # debug
+    # config.switch_ir_debug()
     if args.use_gpu:
         config.enable_use_gpu(1000, 0)
-        if args.use_trt:
+        if args.enable_tune:
+            config.collect_shape_range_info('shape_range.pbtxt')
+        elif args.use_trt:
+            # config.enable_tuned_tensorrt_dynamic_shape('shape_range.pbtxt', True)
             if args.precision == 'fp32':
                 config.enable_tensorrt_engine(
                     workspace_size=1 << 30,
@@ -116,6 +121,11 @@ def parse_args():
                         default='fp32',
                         choices=["fp32", "fp16"],
                         help="precision mode.")
+    parser.add_argument(
+        "--enable_tune",
+        default=False,
+        type=bool,
+        help="Whether to run in tune mode.")
     return parser.parse_args()
 
 
