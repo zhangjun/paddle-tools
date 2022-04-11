@@ -54,8 +54,14 @@ def run(predictor, img):
     input_names = predictor.get_input_names()
     for i, name in enumerate(input_names):
         input_tensor = predictor.get_input_handle(name)
-        input_tensor.reshape(img[i].shape)
-        input_tensor.copy_from_cpu(img[i].copy())
+        # input_tensor.reshape(img[i].shape)
+        input_tensor.copy_from_cpu(img[i])
+
+    # data = np.load('ppyolo_mbv3_large_coco_upload/3x320x320.npy', allow_pickle=True)
+    # for i, name in enumerate(input_names):
+    #     input_tensor = predictor.get_input_handle(name)
+    #     in_data = np.expand_dims(data[i], 0).repeat(batch_size, axis=0)
+    #     input_tensor.copy_from_cpu(in_data)
 
     # do the inference
     for i in range(2):
@@ -99,6 +105,13 @@ def parse_args():
     )
     parser.add_argument(
         "--model_dir",
+        type=str,
+        default="",
+        help=
+        "Model dir, If you load a non-combined model, specify the directory of the model."
+    )
+    parser.add_argument(
+        "--numpy_input",
         type=str,
         default="",
         help=
