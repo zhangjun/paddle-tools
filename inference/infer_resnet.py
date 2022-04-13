@@ -12,6 +12,7 @@ def init_predictor(args):
         config = Config(args.model_dir)
     else:
         config = Config(args.model_file, args.params_file)
+        args.model_dir = os.path.dirname(args.model_file)
 
     config.enable_memory_optim()
     # config.enable_profile()
@@ -19,10 +20,12 @@ def init_predictor(args):
     # config.switch_ir_debug()
     if args.use_gpu:
         config.enable_use_gpu(1000, 0)
+        shape_range_file = os.path.join(args.model_dir, "shape_range.pbtxt")
         if args.enable_tune:
-            config.collect_shape_range_info('shape_range.pbtxt')
+            config.collect_shape_range_info(shape_range_file)
         elif args.use_trt:
-            # config.enable_tuned_tensorrt_dynamic_shape('shape_range.pbtxt', True)
+            if os.path.exists(shape_range_file):
+                config.enable_tuned_tensorrt_dynamic_shape(shape_range_file, True)
             if args.precision == 'fp32':
                 config.enable_tensorrt_engine(
                     workspace_size=1 << 30,
@@ -116,6 +119,13 @@ def parse_args():
         default="",
         help=
         "Model dir, If you load a non-combined model, specify the directory of the model."
+    )
+    parser.add_argument(
+        "--shape_range_file",
+        type=str,
+        default="shape_range.pbtxt",
+        help=
+        "Shape range file for Paddle TRT dynamic shape."
     )
     parser.add_argument("--use_gpu",
                         type=int,
