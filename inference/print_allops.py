@@ -4,6 +4,7 @@ import paddle.static as static
 import numpy as np
 import json
 import os
+import argparse
 from paddle.fluid import core
 from paddle.fluid import executor
 from paddle.fluid.io import load_inference_model
@@ -18,7 +19,7 @@ class InferModel(object):
         self.fetch_vars = list[2]
 
 
-def printAllOps(model_path, model, params):
+def printAllOps(model_path, model='inference', params='inference'):
     place = paddle.CPUPlace()
     # place = core.CUDAPlace(3)
     # scope = global_scope()
@@ -36,11 +37,26 @@ def printAllOps(model_path, model, params):
     for op_node in op_nodes:
         op_lists.append(op_node.name())
     ops = set(op_lists)
-    print(model_path, sorted(ops))
+    print("[print_ops] %s\t%s" % (model_path, sorted(ops)))
 
 
-model = 'inference'
-params = 'inference'
-model_path = '/mydev/work/test/infer_bench/ShuffleNetV2_x0_5/inference'
-printAllOps(model_path, model, params)
+# model = 'inference'
+# params = 'inference'
+# model_path = '/mydev/work/test/infer_bench/ShuffleNetV2_x0_5/inference'
+# printAllOps(model_path, model, params)
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--model_path",
+        type=str,
+        default="",
+        help="Model filename, Specify this when your model is a combined model."
+    )
+    return parser.parse_args()
+
+
+if __name__ == '__main__':
+    args = parse_args()
+    model_path = args.model_path.split('.pdmodel')[0]
+    printAllOps(model_path)
